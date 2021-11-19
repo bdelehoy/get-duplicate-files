@@ -4,11 +4,12 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from datetime import datetime
 from collections import defaultdict
+from sys import argv
 import os
 import hashlib
 import pprint
 
-DATA_DIR = "./sample-data"
+DEFAULT_DIR = "./sample-data"
 BUF_SIZE = 65536            # Update file hashes by chunks of this size in bytes (default: 65536 = 64kb)
 
 ################################################################
@@ -50,8 +51,11 @@ class FileEntry:
 ################################################################
 
 if __name__ == "__main__":
-    dd = Path(DATA_DIR)
-    total_file_list = []            # Simple one-dimensional list of each file in DATA_DIR
+    dd = Path(DEFAULT_DIR)
+    if len(argv) > 1:
+        dd = Path(argv[1])
+
+    total_file_list = []            # Simple one-dimensional list of each file in dd
     hashes = defaultdict(list)      # Dictionary that maps file hashes to files that resolve to that hash
     for f in sorted(dd.rglob("*"), key=os.path.getmtime):
         # Iterate through the files by modification time (so "originals" are first)
@@ -75,10 +79,17 @@ if __name__ == "__main__":
             all_dupes.extend(['"'+d.get_absolute_path_as_str()+'"' for d in dupes])
             pp.pprint(dupes)
         else:
-            print("{} has no duplicates".format(hashes[h][0].get_relative_path_as_str()))
+            pass
+            # print("{} has no duplicates".format(hashes[h][0].get_relative_path_as_str()))
 
     if len(all_dupes) > 0:
         print()
         print("Found {} duplicate file(s)".format(len(all_dupes)))
+        print()
+        print("Linux command to delete:")
         rm_string = "rm -f " + " ".join(all_dupes)
         print(rm_string)
+        print()
+        print("PowerShell command to delete:")
+        powershell_string = "Remove-Item " + ", ".join(all_dupes)
+        print(powershell_string)
