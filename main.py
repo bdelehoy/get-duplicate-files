@@ -55,16 +55,18 @@ if __name__ == "__main__":
     if len(argv) > 1:
         dd = Path(argv[1])
 
-    total_file_list = []            # Simple one-dimensional list of each file in dd
+    #total_file_list = []            # Simple one-dimensional list of each file in dd
+    num_files = 0
     hashes = defaultdict(list)      # Dictionary that maps file hashes to files that resolve to that hash
     for f in sorted(dd.rglob("*"), key=os.path.getmtime):
         # Iterate through the files by modification time (so "originals" are first)
         if f.is_file():
             new_entry = FileEntry(f)
-            total_file_list.append(new_entry)
+            #total_file_list.append(new_entry)
+            num_files += 1
             hashes[new_entry.sha3_256].append(new_entry)
 
-    print("{} files, {} hashes{}".format(len(total_file_list), len(hashes), " (duplicates found)" if len(total_file_list) != len(hashes) else ""))
+    print("{} files, {} hashes{}".format(num_files, len(hashes), " (duplicates found)" if num_files != len(hashes) else ""))
 
     pp = pprint.PrettyPrinter(indent=2)
     #pp.pprint(hashes)
